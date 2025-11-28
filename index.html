@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阅后即焚网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group textarea,
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e1e1e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .link-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .view-section {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .burned-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin: 20px 0;
+        }
+
+        .content-display {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+
+        .stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 阅后即焚</h1>
+            <p>安全、私密的信息分享平台</p>
+        </div>
+        
+        <div class="content">
+            <!-- 创建表单 -->
+            <div id="createForm" class="form-section active">
+                <h2>创建阅后即焚信息</h2>
+                <form id="burnForm">
+                    <div class="form-group">
+                        <label for="message">要发送的内容：</label>
+                        <textarea id="message" name="message" placeholder="请输入您要发送的文本内容..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="burnTime">自动焚化时间：</label>
+                        <select id="burnTime" name="burnTime" required>
+                            <option value="300">5分钟</option>
+                            <option value="900">15分钟</option>
+                            <option value="1800">30分钟</option>
+                            <option value="3600">1小时</option>
+                            <option value="7200">2小时</option>
+                            <option value="14400">4小时</option>
+                            <option value="28800">8小时</option>
+                            <option value="43200">12小时</option>
+                            <option value="86400">24小时</option>
+                            <option value="172800">2天</option>
+                            <option value="259200">3天</option>
+                            <option value="604800">7天</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxViews">最大查看次数：</label>
+                        <select id="maxViews" name="maxViews" required>
+                            <option value="1">1次</option>
+                            <option value="2">2次</option>
+                            <option value="3">3次</option>
+                            <option value="5">5次</option>
+                            <option value="10">10次</option>
+                            <option value="0">不限次数</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">生成阅后即焚链接</button>
+                </form>
+            </div>
+            
+            <!-- 结果显示 -->
+            <div id="resultSection" class="result-section">
+                <h2>阅后即焚链接已生成</h2>
+                <p>请将以下链接分享给需要查看的人：</p>
+                
+                <div class="link-container">
+                    <span id="generatedLink"></span>
+                    <button class="copy-btn" onclick="copyToClipboard()">复制链接</button>
+                </div>
+                
+                <p><strong>重要提醒：</strong>链接将在指定时间后自动失效，或在达到最大查看次数后失效。</p>
+                
+                <button class="btn btn-secondary" onclick="showCreateForm()">返回创建</button>
+            </div>
+            
+            <!-- 查看内容 -->
+            <div id="viewSection" class="view-section" style="display: none;">
+                <div id="burnedContent" class="burned-message hidden">
+                    <h3>❌ 内容已焚化</h3>
+                    <p>该信息已经过期或达到最大查看次数，内容已被焚化。</p>
+                </div>
+                
+                <div id="validContent" class="hidden">
+                    <div id="contentDisplay" class="content-display"></div>
+                    <div id="viewStats" class="stats"></div>
+                    <div id="countdown" class="stats"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查是否为查看模式
+        const urlParams = new URLSearchParams(window.location.search);
+        const messageId = urlParams.get('id');
+        
+        if (messageId) {
+            // 查看模式
+            document.getElementById('createForm').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('viewSection').style.display = 'block';
+            
+            loadMessage(messageId);
+        }
+        
+        // 提交表单
+        document.getElementById('burnForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const message = document.getElementById('message').value;
+            const burnTime = document.getElementById('burnTime').value;
+            const maxViews = document.getElementById('maxViews').value;
+            
+            try {
+                const response = await fetch('/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        burn_time: parseInt(burnTime),
+                        max_views: parseInt(maxViews)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const link = `${window.location.origin}${window.location.pathname}?id=${data.id}`;
+                    document.getElementById('generatedLink').textContent = link;
+                    document.getElementById('createForm').classList.remove('active');
+                    document.getElementById('resultSection').classList.add('active');
+                } else {
+                    alert('创建失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('创建失败，请稍后重试');
+            }
+        });
+        
+        // 加载消息
+        async function loadMessage(id) {
+            try {
+                const response = await fetch(`/api/view/${id}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('contentDisplay').textContent = data.message;
+                    document.getElementById('viewStats').innerHTML = `
+                        <strong>查看次数：</strong> ${data.current_views} / ${data.max_views === 0 ? '无限制' : data.max_views}<br>
+                        <strong>剩余时间：</strong> ${formatTime(data.time_remaining)}秒
+                    `;
+                    
+                    if (data.time_remaining > 0) {
+                        startCountdown(data.time_remaining);
+                    }
+                    
+                    document.getElementById('validContent').classList.remove('hidden');
+                } else {
+                    document.getElementById('burnedContent').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('burnedContent').classList.remove('hidden');
+            }
+        }
+        
+        // 倒计时
+        function startCountdown(seconds) {
+            const countdownElement = document.getElementById('countdown');
+            let remaining = seconds;
+            
+            const timer = setInterval(() => {
+                remaining--;
+                countdownElement.innerHTML = `<strong>自动焚化倒计时：</strong> ${formatTime(remaining)}秒`;
+                
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('validContent').classList.add('hidden');
+                    document.getElementById('burnedContent').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+        
+        // 格式化时间
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}小时${minutes}分钟${secs}秒`;
+            } else if (minutes > 0) {
+                return `${minutes}分钟${secs}秒`;
+            } else {
+                return `${secs}秒`;
+            }
+        }
+        
+        // 复制链接
+        function copyToClipboard() {
+            const link = document.getElementById('generatedLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+        
+        // 返回创建表单
+        function showCreateForm() {
+            document.getElementById('resultSection').classList.remove('active');
+            document.getElementById('createForm').classList.add('active');
+            window.location.hash = '';
+            window.location.search = '';
+        }
+    </script>
+</body>
+</html>
