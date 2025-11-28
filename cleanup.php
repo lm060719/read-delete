@@ -4,9 +4,9 @@ header('Content-Type: text/plain; charset=utf-8');
 
 // 数据库配置 - 请使用与api.php相同的数据库配置
 $host = 'localhost';
-$dbname = 'burn_user';  // 数据库名
-$username = 'burn_user';  // 用户名
-$password = 'limo060719';  // 密码
+$dbname = 'burn_user';  // burn_user替换你的数据库名
+$username = 'burn_user';  // burn_user替换你的用户名
+$password = 'burn_user';  // burn_user替换你的密码
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password, array(
@@ -28,4 +28,5 @@ try {
     echo "清理失败: " . $e->getMessage() . "\n";
     error_log("清理脚本执行失败: " . $e->getMessage());
 }
+
 ?>
