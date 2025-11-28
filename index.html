@@ -37,6 +37,7 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+			margin-left: -20px; /* 添加这行，给标题左边增加一点间距 */
         }
 
         .header p {
@@ -98,6 +99,25 @@
             cursor: pointer;
             transition: all 0.3s;
             margin: 5px;
+        }
+
+        /* --- 添加以下新样式 --- */
+        .btn-header {
+            background: transparent; /* 透明背景 */
+            color: white; /* 白色文字 */
+            border: none; /* 无边框 */
+            font-size: 1.5em; /* 调整大小以匹配标题 */
+            cursor: pointer;
+            margin-right: 15px; /* 与标题保持间距 */
+            padding: 5px; /* 调整内边距，使按钮区域合适 */
+            display: flex; /* 使用 flex 布局 */
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            transition: opacity 0.3s; /* 添加透明度过渡效果 */
+        }
+
+        .btn-header:hover {
+            opacity: 0.8; /* 鼠标悬停时降低透明度 */
         }
 
         .btn-primary {
@@ -199,6 +219,8 @@
 <body>
     <div class="container">
         <div class="header">
+            <!-- 返回按钮放在标题左边 -->
+            <button type="button" class="btn btn-header" onclick="history.back()" title="返回上一页">&larr;</button>
             <h1>🔥 阅后即焚</h1>
             <p>安全、私密的信息分享平台</p>
         </div>
@@ -264,11 +286,14 @@
             
             <!-- 查看内容 -->
             <div id="viewSection" class="view-section" style="display: none;">
+                <!-- 添加的返回按钮 -->
+                <button class="btn btn-secondary" onclick="history.back()" style="margin-bottom: 20px;">&larr; 返回上一页</button>
+            
                 <div id="burnedContent" class="burned-message hidden">
                     <h3>❌ 内容已焚化</h3>
                     <p>该信息已经过期或达到最大查看次数，内容已被焚化。</p>
                 </div>
-                
+                            
                 <div id="validContent" class="hidden">
                     <div id="contentDisplay" class="content-display"></div>
                     <div id="viewStats" class="stats"></div>
@@ -301,12 +326,13 @@
             const maxViews = document.getElementById('maxViews').value;
             
             try {
-                const response = await fetch('/api/create', {
+                const response = await fetch('api/api.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        action: 'create',
                         message: message,
                         burn_time: parseInt(burnTime),
                         max_views: parseInt(maxViews)
@@ -332,8 +358,15 @@
         // 加载消息
         async function loadMessage(id) {
             try {
-                const response = await fetch(`/api/view/${id}`, {
-                    method: 'POST'
+                const response = await fetch('api/api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'view',
+                        id: id
+                    })
                 });
                 
                 const data = await response.json();
@@ -342,7 +375,7 @@
                     document.getElementById('contentDisplay').textContent = data.message;
                     document.getElementById('viewStats').innerHTML = `
                         <strong>查看次数：</strong> ${data.current_views} / ${data.max_views === 0 ? '无限制' : data.max_views}<br>
-                        <strong>剩余时间：</strong> ${formatTime(data.time_remaining)}秒
+                        <strong>剩余时间：</strong> ${formatTime(data.time_remaining)}
                     `;
                     
                     if (data.time_remaining > 0) {
@@ -366,7 +399,7 @@
             
             const timer = setInterval(() => {
                 remaining--;
-                countdownElement.innerHTML = `<strong>自动焚化倒计时：</strong> ${formatTime(remaining)}秒`;
+                countdownElement.innerHTML = `<strong>自动焚化倒计时：</strong> ${formatTime(remaining)}`;
                 
                 if (remaining <= 0) {
                     clearInterval(timer);
@@ -376,7 +409,7 @@
             }, 1000);
         }
         
-        // 格式化时间
+        // 格式化时间 - 修正版本，不再重复添加单位
         function formatTime(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
@@ -391,12 +424,44 @@
             }
         }
         
-        // 复制链接
+        // 复制链接 - 完全兼容HTTP环境的版本
         function copyToClipboard() {
-            const link = document.getElementById('generatedLink').textContent;
-            navigator.clipboard.writeText(link).then(() => {
-                alert('链接已复制到剪贴板！');
-            });
+            const linkElement = document.getElementById('generatedLink');
+            const link = linkElement.textContent;
+            
+            // 创建临时文本区域来选择和复制文本
+            const textArea = document.createElement('textarea');
+            textArea.value = link;
+            textArea.style.cssText = `
+                position: fixed;
+                top: -9999px;
+                left: -9999px;
+                opacity: 0;
+                pointer-events: none;
+            `;
+            document.body.appendChild(textArea);
+            
+            // 选择文本
+            textArea.select();
+            textArea.setSelectionRange(0, link.length); // 移动端兼容
+            
+            try {
+                // 执行复制命令
+                const successful = document.execCommand('copy');
+                
+                if (successful) {
+                    alert('链接已成功复制到剪贴板！');
+                } else {
+                    // 复制失败，显示提示让用户手动复制
+                    prompt('请手动复制以下链接:', link);
+                }
+            } catch (err) {
+                // 如果 execCommand 失败，显示提示让用户手动复制
+                prompt('请手动复制以下链接:', link);
+            }
+            
+            // 移除临时元素
+            document.body.removeChild(textArea);
         }
         
         // 返回创建表单
