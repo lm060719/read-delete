@@ -5,7 +5,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// 数据库配置 - 已根据你的信息修正
+// 数据库配置
 $host = 'localhost';
 $dbname = 'burn_user';  // burn_user替换你的数据库名
 $username = 'burn_user';  // burn_user替换你的用户名
